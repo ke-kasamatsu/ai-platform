@@ -6,8 +6,13 @@ import { TaskWidget } from "@/components/TaskWidget";
 import { LinksWidget } from "@/components/LinksWidget";
 import { WorkflowWidget } from "@/components/WorkflowWidget";
 import { FileAgentPage } from "@/pages/FileAgentPage";
+import { ChatPage } from "@/pages/ChatPage";
+import { DocumentPage } from "@/pages/DocumentPage";
+import { AnalysisPage } from "@/pages/AnalysisPage";
+import { AudioPage } from "@/pages/AudioPage";
+import { WebResearchPage } from "@/pages/WebResearchPage";
 
-export type Page = "home" | "file-agent";
+export type Page = "home" | "chat" | "document" | "analysis" | "audio" | "web-research" | "file-agent";
 
 function App() {
   const [page, setPage] = useState<Page>("home");
@@ -33,7 +38,12 @@ function App() {
             <WorkflowWidget onNavigate={setPage} />
           </div>
         )}
-        {page === "file-agent" && <FileAgentPage />}
+        {page === "chat"         && <ChatPage />}
+        {page === "document"     && <DocumentPage />}
+        {page === "analysis"     && <AnalysisPage />}
+        {page === "audio"        && <AudioPage />}
+        {page === "web-research" && <WebResearchPage />}
+        {page === "file-agent"   && <FileAgentPage />}
       </main>
     </div>
   );
