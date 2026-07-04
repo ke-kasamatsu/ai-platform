@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会社情報 | 業務ファイル データ化エージェント</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg: #06070e; --bg2: #0c0e1a; --bg-card: rgba(255,255,255,0.025);
+      --border: rgba(255,255,255,0.07); --border-b: rgba(255,255,255,0.13);
+      --primary: #6366f1; --primary-dim: rgba(99,102,241,0.1);
+      --cyan: #22d3ee; --cyan-dim: rgba(34,211,238,0.1);
+      --green: #34d399; --green-dim: rgba(52,211,153,0.1);
+      --amber: #fbbf24; --red: #f87171;
+      --text: #e2e8f0; --text-d: #94a3b8; --text-m: #475569;
+    }
+
+    body { font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif; background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden; }
+
+    .gnav { position:fixed; top:0; left:0; right:0; z-index:200; background:rgba(6,7,14,0.82); backdrop-filter:blur(24px) saturate(180%); border-bottom:1px solid var(--border); }
+    .gnav-in { max-width:1140px; margin:0 auto; padding:0 24px; height:60px; display:flex; align-items:center; gap:8px; }
+    .g-logo { font-size:15px; font-weight:800; color:#fff; text-decoration:none; letter-spacing:-0.02em; margin-right:20px; white-space:nowrap; }
+    .g-logo em { font-style:normal; background:linear-gradient(90deg,var(--primary),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .g-links { display:flex; gap:2px; flex:1; overflow-x:auto; }
+    .g-links a { text-decoration:none; color:var(--text-d); font-size:13.5px; font-weight:500; padding:6px 14px; border-radius:8px; white-space:nowrap; transition:color .15s,background .15s; }
+    .g-links a:hover,.g-links a.cur { color:var(--text); background:rgba(255,255,255,0.06); }
+    .g-btn { text-decoration:none; background:var(--primary); color:#fff; font-size:13px; font-weight:700; padding:8px 20px; border-radius:8px; white-space:nowrap; transition:opacity .15s,transform .15s; }
+    .g-btn:hover { opacity:.88; transform:translateY(-1px); }
+
+    .wrap { max-width:1140px; margin:0 auto; padding:0 24px; }
+    .sec { padding:96px 0; }
+    .sec-alt { background:var(--bg2); }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--primary); margin-bottom:16px; }
+    .eyebrow::before { content:""; display:block; width:24px; height:2px; background:linear-gradient(90deg,var(--primary),var(--cyan)); border-radius:2px; }
+    .sec-title { font-size:clamp(26px,3.5vw,40px); font-weight:800; letter-spacing:-.025em; margin-bottom:12px; }
+    .sec-lead { font-size:16px; color:var(--text-d); margin-bottom:48px; max-width:640px; line-height:1.8; }
+    .g-text { background:linear-gradient(135deg,var(--primary),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* PAGE HERO */
+    .page-hero { padding:140px 0 80px; position:relative; overflow:hidden; text-align:center; }
+    .ph-glow { position:absolute; width:800px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(99,102,241,.18) 0%,transparent 70%); top:-100px; left:50%; transform:translateX(-50%); pointer-events:none; }
+    .ph-grid { position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px); background-size:44px 44px; mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%); }
+    .ph-in { position:relative; z-index:1; }
+    .ph-tag { display:inline-block; background:var(--primary-dim); border:1px solid rgba(99,102,241,.28); border-radius:999px; padding:6px 18px; font-size:12px; font-weight:600; color:#a5b4fc; margin-bottom:24px; }
+    .ph-title { font-size:clamp(32px,5vw,58px); font-weight:900; letter-spacing:-.03em; margin-bottom:16px; line-height:1.12; }
+    .ph-sub { font-size:17px; color:var(--text-d); max-width:600px; margin:0 auto; line-height:1.85; }
+
+    /* PROFILE TABLE */
+    .profile-tbl { width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .profile-tbl tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    .profile-tbl tr:last-child { border-bottom:none; }
+    .profile-tbl tr:hover { background:rgba(255,255,255,.02); }
+    .profile-tbl th { width:180px; padding:18px 24px; text-align:left; font-size:12px; font-weight:700; color:var(--text-m); vertical-align:top; letter-spacing:.04em; }
+    .profile-tbl td { padding:18px 24px; font-size:14px; color:var(--text-d); }
+    .profile-tbl td strong { color:var(--text); }
+
+    /* MISSION / VISION */
+    .mv-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .mv-card { border-radius:16px; padding:36px; position:relative; overflow:hidden; }
+    .mv-card::before { content:""; position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; opacity:.06; }
+    .mv-m { background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(99,102,241,.04)); border:1px solid rgba(99,102,241,.2); }
+    .mv-m::before { background:var(--primary); }
+    .mv-v { background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(52,211,153,.03)); border:1px solid rgba(52,211,153,.2); }
+    .mv-v::before { background:var(--green); }
+    .mv-label { font-size:11px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; margin-bottom:12px; }
+    .mv-m .mv-label { color:#818cf8; }
+    .mv-v .mv-label { color:var(--green); }
+    .mv-card h3 { font-size:20px; font-weight:800; line-height:1.45; margin-bottom:12px; letter-spacing:-.01em; }
+    .mv-m h3 { color:#c7d2fe; }
+    .mv-v h3 { color:#6ee7b7; }
+    .mv-card p { font-size:13px; color:var(--text-d); line-height:1.8; }
+
+    /* SERVICES */
+    .svc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .svc-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:26px; transition:border-color .2s,transform .2s; }
+    .svc-card:hover { border-color:var(--border-b); transform:translateY(-2px); }
+    .svc-icon { font-size:32px; margin-bottom:14px; display:block; }
+    .svc-card h3 { font-size:15px; font-weight:700; margin-bottom:8px; }
+    .svc-card p { font-size:13px; color:var(--text-d); line-height:1.75; }
+
+    /* NUMBERS */
+    .num-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:40px; }
+    .num-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:28px 20px; text-align:center; }
+    .num-val { font-size:clamp(28px,3vw,40px); font-weight:900; letter-spacing:-.03em; background:linear-gradient(135deg,var(--primary),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; margin-bottom:8px; }
+    .num-lbl { font-size:12px; color:var(--text-d); line-height:1.5; }
+    .strength-list { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .str-item { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px 22px; border-left:3px solid var(--primary); transition:border-color .2s; }
+    .str-item:nth-child(2) { border-left-color:var(--green); }
+    .str-item:nth-child(3) { border-left-color:var(--cyan); }
+    .str-item h4 { font-size:14px; font-weight:700; margin-bottom:6px; }
+    .str-item p { font-size:13px; color:var(--text-d); line-height:1.7; }
+
+    /* CONTACT */
+    .contact-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+    .ct-head { background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(34,211,238,.1)); border-bottom:1px solid var(--border); padding:36px 40px; }
+    .ct-head h3 { font-size:22px; font-weight:800; margin-bottom:6px; }
+    .ct-head p { font-size:14px; color:var(--text-d); }
+    .ct-body { padding:36px 40px; }
+    .ct-form { display:flex; flex-direction:column; gap:20px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-grp { display:flex; flex-direction:column; gap:6px; }
+    .form-grp label { font-size:12px; font-weight:700; color:var(--text-d); letter-spacing:.04em; }
+    .req { color:var(--red); margin-left:3px; }
+    .form-grp input,
+    .form-grp select,
+    .form-grp textarea {
+      background:rgba(255,255,255,.04); border:1px solid var(--border-b);
+      border-radius:8px; padding:11px 14px; font-size:14px;
+      font-family:inherit; color:var(--text); outline:none;
+      transition:border-color .15s,box-shadow .15s;
+    }
+    .form-grp input::placeholder,
+    .form-grp textarea::placeholder { color:var(--text-m); }
+    .form-grp input:focus,
+    .form-grp select:focus,
+    .form-grp textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+    .form-grp select option { background:#0c0e1a; }
+    .form-grp textarea { resize:vertical; min-height:110px; }
+    .btn-submit {
+      display:inline-flex; align-items:center; gap:8px;
+      background:linear-gradient(135deg,var(--primary),#4338ca); color:#fff;
+      border:none; border-radius:10px; padding:14px 32px;
+      font-size:15px; font-weight:700; font-family:inherit; cursor:pointer;
+      box-shadow:0 4px 20px rgba(99,102,241,.4);
+      transition:transform .2s,box-shadow .2s; align-self:flex-start;
+    }
+    .btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(99,102,241,.55); }
+    .ct-info { display:flex; gap:28px; flex-wrap:wrap; margin-top:28px; padding-top:28px; border-top:1px solid var(--border); }
+    .ct-info-item { display:flex; align-items:flex-start; gap:10px; }
+    .ct-icon { font-size:18px; flex-shrink:0; margin-top:2px; }
+    .ct-lbl { font-size:11px; font-weight:700; color:var(--text-m); letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px; }
+    .ct-val { font-size:14px; font-weight:600; color:var(--text-d); }
+
+    /* FOOTER */
+    footer { background:var(--bg2); border-top:1px solid var(--border); padding:40px 0; }
+    .ft-in { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+    .ft-brand { font-size:14px; font-weight:800; }
+    .ft-brand em { font-style:normal; background:linear-gradient(90deg,var(--primary),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .ft-links { display:flex; gap:20px; flex-wrap:wrap; }
+    .ft-links a { font-size:13px; color:var(--text-m); text-decoration:none; transition:color .15s; }
+    .ft-links a:hover { color:var(--text-d); }
+    .ft-copy { font-size:12px; color:var(--text-m); }
+    .to-top { position:fixed; right:24px; bottom:24px; z-index:100; background:rgba(12,14,26,.92); border:1px solid var(--border-b); color:var(--text-d); text-decoration:none; font-size:13px; font-weight:700; padding:10px 16px; border-radius:999px; backdrop-filter:blur(8px); transition:color .15s,transform .15s; }
+    .to-top:hover { color:var(--text); transform:translateY(-2px); }
+
+    @media(max-width:900px) {
+      .mv-grid,.svc-grid,.strength-list { grid-template-columns:1fr; }
+      .num-grid { grid-template-columns:repeat(2,1fr); }
+      .form-row { grid-template-columns:1fr; }
+      .ct-head,.ct-body { padding:24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="gnav">
+  <div class="gnav-in">
+    <a href="index.html" class="g-logo">📄 <em>データ化</em>エージェント</a>
+    <div class="g-links">
+      <a href="index.html">ホーム</a>
+      <a href="features.html">機能詳細</a>
+      <a href="company.html" class="cur">会社情報</a>
+    </div>
+    <a href="#contact" class="g-btn">お問い合わせ</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section id="top" class="page-hero">
+  <div class="ph-glow"></div>
+  <div class="ph-grid"></div>
+  <div class="wrap ph-in">
+    <div class="ph-tag">Company Information</div>
+    <h1 class="ph-title"><span class="g-text">太洋精機株式会社</span><br>について</h1>
+    <p class="ph-sub">自動車・産業機械向け精密金属部品の設計・製造。<br>創業 50 年の技術と、最新 DX で次世代のものづくりを実現します。</p>
+  </div>
+</section>
+
+<!-- PROFILE -->
+<section class="sec" id="profile">
+  <div class="wrap">
+    <div class="eyebrow">Company Profile</div>
+    <h2 class="sec-title">会社概要</h2>
+    <p class="sec-lead">太洋精機株式会社の基本情報です。</p>
+    <table class="profile-tbl">
+      <tr><th>会社名</th><td><strong>太洋精機株式会社</strong></td></tr>
+      <tr><th>英語名</th><td>TAIYO SEIKI Co., Ltd.</td></tr>
+      <tr><th>設立</th><td>1975年（昭和50年）3月</td></tr>
+      <tr><th>代表者</th><td>代表取締役社長　山本 孝雄</td></tr>
+      <tr><th>資本金</th><td>1億5,000万円</td></tr>
+      <tr><th>従業員数</th><td>215名（2025年4月現在）</td></tr>
+      <tr><th>所在地</th><td>〒448-0028　愛知県刈谷市若松町1丁目5番地</td></tr>
+      <tr><th>電話番号</th><td>0566-21-3580</td></tr>
+      <tr><th>メール</th><td>info@taiyo-seiki.co.jp</td></tr>
+      <tr><th>主要取引先</th><td>自動車メーカー・Tier1サプライヤー・産業機械メーカー 他</td></tr>
+      <tr><th>認証・規格</th><td>ISO 9001:2015 認証取得　／　IATF 16949 準拠</td></tr>
+      <tr><th>事業内容</th><td>自動車部品・産業機械向け精密金属部品の設計・切削加工・プレス加工・組立</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- MISSION / VISION -->
+<section class="sec sec-alt" id="mission">
+  <div class="wrap">
+    <div class="eyebrow">Mission &amp; Vision</div>
+    <h2 class="sec-title">ミッション &amp; ビジョン</h2>
+    <p class="sec-lead">私たちが目指す姿と、そのための指針です。</p>
+    <div class="mv-grid">
+      <div class="mv-card mv-m">
+        <div class="mv-label">Mission</div>
+        <h3>精密な部品ひとつから、<br>日本のものづくりを支える</h3>
+        <p>±0.005mm の精度を追い求める姿勢が、自動車の安全性や産業機械の信頼性を下支えしています。妥協のない品質と誠実な対応で、取引先の設計思想をかたちにし続けます。</p>
+      </div>
+      <div class="mv-card mv-v">
+        <div class="mv-label">Vision</div>
+        <h3>スマートファクトリーで、<br>アジアトップクラスの精密加工企業へ</h3>
+        <p>50 年培った加工技術に AI・IoT・自動化を融合し、2030 年までにスマートファクトリー化を完成。多品種小ロットへの柔軟対応と圧倒的なスピードで、グローバル市場をリードします。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="sec" id="services">
+  <div class="wrap">
+    <div class="eyebrow">Services</div>
+    <h2 class="sec-title">事業内容</h2>
+    <p class="sec-lead">自動車部品・産業機械部品を中心に、設計から納品まで一貫して対応します。</p>
+    <div class="svc-grid">
+      <div class="svc-card"><span class="svc-icon">🔩</span><h3>精密切削加工</h3><p>NC 旋盤・マシニングセンタによる精密切削加工。公差 ±0.005mm の高精度加工に対応し、エンジン部品・ミッション部品など難加工材料も得意とします。</p></div>
+      <div class="svc-card"><span class="svc-icon">🏗️</span><h3>板金・プレス加工</h3><p>薄板から厚板まで幅広い板金加工・プレス加工に対応。ブランク加工・曲げ・絞り・トリミングまで社内一貫生産で短納期を実現します。</p></div>
+      <div class="svc-card"><span class="svc-icon">⚙️</span><h3>金型設計・製造</h3><p>プレス金型・樹脂金型の設計から製造まで対応。3D CAD/CAM を活用し、試作から量産金型まで一貫して社内で完結します。</p></div>
+      <div class="svc-card"><span class="svc-icon">✨</span><h3>表面処理・熱処理</h3><p>焼入れ・焼戻し・浸炭処理などの熱処理に加え、アルマイト・メッキ・塗装など各種表面処理を協力工場と連携してワンストップで提供します。</p></div>
+      <div class="svc-card"><span class="svc-icon">🔬</span><h3>精密検査・品質管理</h3><p>三次元測定機・画像測定器による全数検査・抜き取り検査を実施。IATF 16949 準拠の品質管理体制で、出荷不良ゼロを追求しています。</p></div>
+      <div class="svc-card"><span class="svc-icon">📦</span><h3>組立・ユニット製造</h3><p>部品単品供給から、サブアッシー・ユニット組立まで対応。お客様の工程を内製化することで、調達コストとリードタイムの削減に貢献します。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- STRENGTH / NUMBERS -->
+<section class="sec sec-alt" id="strength">
+  <div class="wrap">
+    <div class="eyebrow">Track Record</div>
+    <h2 class="sec-title">実績・強み</h2>
+    <p class="sec-lead">創業 50 年で積み上げてきた技術と実績です。</p>
+    <div class="num-grid">
+      <div class="num-card"><div class="num-val">50<span style="font-size:.6em">年</span></div><div class="num-lbl">創業からの<br>歴史</div></div>
+      <div class="num-card"><div class="num-val">120<span style="font-size:.6em">社+</span></div><div class="num-lbl">国内外の<br>取引先数</div></div>
+      <div class="num-card"><div class="num-val">±0.005<span style="font-size:.4em">mm</span></div><div class="num-lbl">対応可能な<br>最小公差</div></div>
+      <div class="num-card"><div class="num-val">99.8<span style="font-size:.6em">%</span></div><div class="num-lbl">出荷品質<br>達成率</div></div>
+    </div>
+    <div class="strength-list">
+      <div class="str-item"><h4>50 年の精密加工ノウハウ</h4><p>創業以来培ってきた加工技術と職人の技が強み。熟練技術者と最新設備の融合で、難加工品・高精度品に安定対応します。</p></div>
+      <div class="str-item"><h4>多品種小ロットへの柔軟対応</h4><p>試作 1 個から量産万単位まで、同じ品質基準で対応。急な設計変更や短納期要求にも、小回りの効く生産体制で応えます。</p></div>
+      <div class="str-item"><h4>ISO / IATF 認証の品質管理体制</h4><p>ISO 9001:2015・IATF 16949 準拠の品質管理を全工程に適用。三次元測定機による全数・抜き取り検査で出荷不良ゼロを追求します。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec" id="contact">
+  <div class="wrap">
+    <div class="eyebrow">Contact</div>
+    <h2 class="sec-title">お問い合わせ</h2>
+    <p class="sec-lead">導入のご相談・資料請求・デモのご依頼など、お気軽にお問い合わせください。</p>
+    <div class="contact-wrap">
+      <div class="ct-head">
+        <h3>📬 お問い合わせフォーム</h3>
+        <p>通常 1〜2 営業日以内にご返信いたします。</p>
+      </div>
+      <div class="ct-body">
+        <form class="ct-form" onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-grp">
+              <label>会社名<span class="req">*</span></label>
+              <input type="text" placeholder="例：株式会社〇〇" required>
+            </div>
+            <div class="form-grp">
+              <label>お名前<span class="req">*</span></label>
+              <input type="text" placeholder="例：山田 太郎" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-grp">
+              <label>メールアドレス<span class="req">*</span></label>
+              <input type="email" placeholder="例：taro@example.com" required>
+            </div>
+            <div class="form-grp">
+              <label>電話番号</label>
+              <input type="tel" placeholder="例：03-0000-0000">
+            </div>
+          </div>
+          <div class="form-grp">
+            <label>お問い合わせ種別<span class="req">*</span></label>
+            <select required>
+              <option value="">選択してください</option>
+              <option>導入のご相談</option>
+              <option>資料請求</option>
+              <option>デモのご依頼</option>
+              <option>料金のお見積もり</option>
+              <option>その他</option>
+            </select>
+          </div>
+          <div class="form-grp">
+            <label>お問い合わせ内容<span class="req">*</span></label>
+            <textarea placeholder="ご質問やご要望をご記入ください。現在の業務課題・対象ファイルの種類・規模などを教えていただくと、より具体的なご提案が可能です。" required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">送信する →</button>
+        </form>
+        <div class="ct-info">
+          <div class="ct-info-item">
+            <span class="ct-icon">📍</span>
+            <div><div class="ct-lbl">所在地</div><div class="ct-val">〒448-0028　愛知県刈谷市若松町1丁目5番地</div></div>
+          </div>
+          <div class="ct-info-item">
+            <span class="ct-icon">📞</span>
+            <div><div class="ct-lbl">電話番号</div><div class="ct-val">0566-21-3580</div></div>
+          </div>
+          <div class="ct-info-item">
+            <span class="ct-icon">✉️</span>
+            <div><div class="ct-lbl">メール</div><div class="ct-val">info@taiyo-seiki.co.jp</div></div>
+          </div>
+          <div class="ct-info-item">
+            <span class="ct-icon">🕐</span>
+            <div><div class="ct-lbl">受付時間</div><div class="ct-val">平日 8:30 〜 17:30</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="ft-in">
+      <div class="ft-brand">📄 <em>データ化</em>エージェント</div>
+      <nav class="ft-links">
+        <a href="index.html">ホーム</a>
+        <a href="features.html">機能詳細</a>
+        <a href="company.html">会社情報</a>
+        <a href="#contact">お問い合わせ</a>
+      </nav>
+      <div class="ft-copy">© 2025 TAIYO SEIKI Co., Ltd.</div>
+    </div>
+  </div>
+</footer>
+<a href="#top" class="to-top">↑ Top</a>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    alert('お問い合わせありがとうございます。\n担当者より 1〜2 営業日以内にご連絡いたします。');
+    e.target.reset();
+  }
+</script>
+</body>
+</html>

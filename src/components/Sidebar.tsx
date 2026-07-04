@@ -18,6 +18,7 @@ type NavItem = {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  href?: string;
 };
 
 type NavSection = {
@@ -40,8 +41,8 @@ const sections: NavSection[] = [
   {
     title: "機能",
     items: [
-      { icon: <FileText size={14} />, label: "文書処理" },
-      { icon: <Files size={14} />, label: "複数資料分析" },
+      { icon: <FileText size={14} />, label: "文書処理", href: "/ai-platform/file-agent/" },
+      { icon: <Files size={14} />, label: "複数資料分析", href: "/ai-platform/file-agent/features.html" },
       { icon: <Globe size={14} />, label: "Web調査" },
     ],
   },
@@ -88,21 +89,26 @@ export function Sidebar() {
                 </span>
               )}
             </div>
-            {section.items.map((item) => (
-              <button
-                key={item.label}
-                className={`w-full flex items-center gap-2 px-2 py-[5px] rounded-md text-[13px] transition-colors text-left mb-0.5 ${
-                  item.active
-                    ? "bg-white/10 text-white/90"
-                    : "text-white/45 hover:text-white/75 hover:bg-white/5"
-                }`}
-              >
-                <span className={item.active ? "text-white/65" : "text-white/30"}>
-                  {item.icon}
-                </span>
-                {item.label}
-              </button>
-            ))}
+            {section.items.map((item) => {
+              const cls = `w-full flex items-center gap-2 px-2 py-[5px] rounded-md text-[13px] transition-colors text-left mb-0.5 ${
+                item.active
+                  ? "bg-white/10 text-white/90"
+                  : "text-white/45 hover:text-white/75 hover:bg-white/5"
+              }`;
+              const inner = (
+                <>
+                  <span className={item.active ? "text-white/65" : "text-white/30"}>
+                    {item.icon}
+                  </span>
+                  {item.label}
+                </>
+              );
+              return item.href ? (
+                <a key={item.label} href={item.href} className={cls}>{inner}</a>
+              ) : (
+                <button key={item.label} className={cls}>{inner}</button>
+              );
+            })}
           </div>
         ))}
       </nav>

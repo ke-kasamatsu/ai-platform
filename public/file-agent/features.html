@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>機能詳細 | 業務ファイル データ化エージェント</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg: #06070e; --bg2: #0c0e1a; --bg-card: rgba(255,255,255,0.025);
+      --border: rgba(255,255,255,0.07); --border-b: rgba(255,255,255,0.13);
+      --primary: #6366f1; --primary-dim: rgba(99,102,241,0.1);
+      --cyan: #22d3ee; --cyan-dim: rgba(34,211,238,0.1);
+      --green: #34d399; --green-dim: rgba(52,211,153,0.1);
+      --amber: #fbbf24; --red: #f87171;
+      --text: #e2e8f0; --text-d: #94a3b8; --text-m: #475569;
+    }
+
+    body { font-family: -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif; background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden; }
+
+    .gnav { position:fixed; top:0; left:0; right:0; z-index:200; background:rgba(6,7,14,0.82); backdrop-filter:blur(24px) saturate(180%); border-bottom:1px solid var(--border); }
+    .gnav-in { max-width:1140px; margin:0 auto; padding:0 24px; height:60px; display:flex; align-items:center; gap:8px; }
+    .g-logo { font-size:15px; font-weight:800; color:#fff; text-decoration:none; letter-spacing:-0.02em; margin-right:20px; white-space:nowrap; }
+    .g-logo em { font-style:normal; background:linear-gradient(90deg,var(--primary),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .g-links { display:flex; gap:2px; flex:1; overflow-x:auto; }
+    .g-links a { text-decoration:none; color:var(--text-d); font-size:13.5px; font-weight:500; padding:6px 14px; border-radius:8px; white-space:nowrap; transition:color .15s,background .15s; }
+    .g-links a:hover,.g-links a.cur { color:var(--text); background:rgba(255,255,255,0.06); }
+    .g-btn { text-decoration:none; background:var(--primary); color:#fff; font-size:13px; font-weight:700; padding:8px 20px; border-radius:8px; white-space:nowrap; transition:opacity .15s,transform .15s; }
+    .g-btn:hover { opacity:.88; transform:translateY(-1px); }
+
+    .wrap { max-width:1140px; margin:0 auto; padding:0 24px; }
+    .sec { padding:96px 0; }
+    .sec-alt { background:var(--bg2); }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--primary); margin-bottom:16px; }
+    .eyebrow::before { content:""; display:block; width:24px; height:2px; background:linear-gradient(90deg,var(--primary),var(--cyan)); border-radius:2px; }
+    .sec-title { font-size:clamp(26px,3.5vw,40px); font-weight:800; letter-spacing:-.025em; margin-bottom:12px; }
+    .sec-lead { font-size:16px; color:var(--text-d); margin-bottom:48px; max-width:640px; line-height:1.8; }
+    .g-text { background:linear-gradient(135deg,var(--primary),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* HERO */
+    .page-hero { padding:140px 0 80px; position:relative; overflow:hidden; text-align:center; }
+    .ph-glow { position:absolute; width:800px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(99,102,241,.18) 0%,transparent 70%); top:-100px; left:50%; transform:translateX(-50%); pointer-events:none; }
+    .ph-grid { position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px); background-size:44px 44px; mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%); }
+    .ph-in { position:relative; z-index:1; }
+    .ph-tag { display:inline-block; background:var(--primary-dim); border:1px solid rgba(99,102,241,.28); border-radius:999px; padding:6px 18px; font-size:12px; font-weight:600; color:#a5b4fc; margin-bottom:24px; }
+    .ph-title { font-size:clamp(32px,5vw,58px); font-weight:900; letter-spacing:-.03em; margin-bottom:16px; line-height:1.12; }
+    .ph-sub { font-size:17px; color:var(--text-d); max-width:600px; margin:0 auto; line-height:1.85; }
+
+    /* CORE FEATURES */
+    .cf-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .cf-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:28px; transition:border-color .2s,transform .2s; position:relative; overflow:hidden; }
+    .cf-card:hover { border-color:var(--border-b); transform:translateY(-2px); }
+    .cf-card::after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 0% 0%,rgba(99,102,241,.06) 0%,transparent 60%); pointer-events:none; }
+    .fi { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; }
+    .fi-i { background:var(--primary-dim); border:1px solid rgba(99,102,241,.2); }
+    .fi-c { background:var(--cyan-dim); border:1px solid rgba(34,211,238,.2); }
+    .fi-g { background:var(--green-dim); border:1px solid rgba(52,211,153,.2); }
+    .fi-a { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.2); }
+    .fi-r { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.2); }
+    .fi-v { background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.2); }
+    .cf-ph { position:absolute; top:16px; right:16px; font-size:10px; font-weight:700; color:var(--text-m); letter-spacing:.08em; }
+    .cf-card h3 { font-size:16px; font-weight:700; margin-bottom:8px; }
+    .cf-card p { font-size:13px; color:var(--text-d); line-height:1.8; }
+
+    /* FORMAT */
+    .fmt-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .fmt-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:24px; display:flex; align-items:center; gap:16px; transition:border-color .2s; }
+    .fmt-card:hover { border-color:var(--border-b); }
+    .fmt-badge { width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; flex-shrink:0; letter-spacing:.02em; }
+    .fb-pdf { background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.25); color:var(--red); }
+    .fb-xls { background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.25); color:var(--green); }
+    .fb-csv { background:var(--primary-dim); border:1px solid rgba(99,102,241,.25); color:#a5b4fc; }
+    .fb-doc { background:rgba(167,139,250,.12); border:1px solid rgba(167,139,250,.25); color:#c4b5fd; }
+    .fb-img { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.25); color:var(--amber); }
+    .fb-eml { background:rgba(34,211,238,.1); border:1px solid rgba(34,211,238,.25); color:var(--cyan); }
+    .fmt-card h4 { font-size:14px; font-weight:700; margin-bottom:3px; }
+    .fmt-card p { font-size:12px; color:var(--text-d); line-height:1.6; }
+
+    /* ARCH */
+    .arch-box { background:rgba(0,0,0,.4); border:1px solid var(--border-b); border-radius:20px; padding:40px; }
+    .arch-row { display:grid; grid-template-columns:1fr 48px 1fr 48px 1fr; gap:10px; align-items:center; }
+    .arch-row + .arch-row { margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
+    .a-node { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px 14px; text-align:center; }
+    .a-icon { font-size:26px; margin-bottom:8px; }
+    .a-name { font-size:13px; font-weight:700; margin-bottom:4px; }
+    .a-sub { font-size:11px; color:var(--text-m); line-height:1.5; }
+    .a-arrow { text-align:center; font-size:20px; color:var(--primary); }
+
+    /* USE CASES */
+    .uc-list { display:flex; flex-direction:column; gap:16px; }
+    .uc-item { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:24px 28px; display:flex; align-items:flex-start; gap:20px; transition:border-color .2s; }
+    .uc-item:hover { border-color:var(--border-b); }
+    .uc-num { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--primary),#4338ca); color:#fff; font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 16px rgba(99,102,241,.35); }
+    .uc-item h4 { font-size:15px; font-weight:700; margin-bottom:6px; }
+    .uc-item p { font-size:13px; color:var(--text-d); line-height:1.75; }
+
+    /* FAQ */
+    .faq-list { display:flex; flex-direction:column; gap:12px; }
+    .faq-item { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:22px 24px; transition:border-color .2s; }
+    .faq-item:hover { border-color:var(--border-b); }
+    .faq-q { font-size:15px; font-weight:700; color:var(--text); margin-bottom:10px; display:flex; align-items:flex-start; gap:10px; }
+    .faq-ql { background:var(--primary); color:#fff; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:800; flex-shrink:0; margin-top:1px; }
+    .faq-a { font-size:13px; color:var(--text-d); padding-left:40px; line-height:1.8; }
+
+    /* CTA */
+    .cta-sec { padding:100px 0; text-align:center; position:relative; overflow:hidden; }
+    .cta-glow { position:absolute; width:700px; height:400px; border-radius:50%; background:radial-gradient(circle,rgba(99,102,241,.2) 0%,transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+    .cta-in { position:relative; z-index:1; }
+    .cta-sec h2 { font-size:clamp(24px,3.5vw,42px); font-weight:900; letter-spacing:-.02em; margin-bottom:14px; }
+    .cta-sec p { font-size:16px; color:var(--text-d); margin-bottom:32px; line-height:1.8; }
+    .cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .btn-p { display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--primary),#4338ca); color:#fff; text-decoration:none; font-size:15px; font-weight:700; padding:14px 28px; border-radius:10px; box-shadow:0 4px 24px rgba(99,102,241,.4); transition:transform .2s,box-shadow .2s; }
+    .btn-p:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(99,102,241,.55); }
+    .btn-g { display:inline-flex; align-items:center; gap:8px; background:transparent; color:var(--text-d); text-decoration:none; font-size:15px; font-weight:600; padding:14px 24px; border-radius:10px; border:1px solid var(--border-b); transition:color .15s,background .15s; }
+    .btn-g:hover { color:var(--text); background:rgba(255,255,255,.05); }
+
+    footer { background:var(--bg2); border-top:1px solid var(--border); padding:40px 0; }
+    .ft-in { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+    .ft-brand { font-size:14px; font-weight:800; }
+    .ft-brand em { font-style:normal; background:linear-gradient(90deg,var(--primary),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .ft-links { display:flex; gap:20px; flex-wrap:wrap; }
+    .ft-links a { font-size:13px; color:var(--text-m); text-decoration:none; transition:color .15s; }
+    .ft-links a:hover { color:var(--text-d); }
+    .ft-copy { font-size:12px; color:var(--text-m); }
+    .to-top { position:fixed; right:24px; bottom:24px; z-index:100; background:rgba(12,14,26,.92); border:1px solid var(--border-b); color:var(--text-d); text-decoration:none; font-size:13px; font-weight:700; padding:10px 16px; border-radius:999px; backdrop-filter:blur(8px); transition:color .15s,transform .15s; }
+    .to-top:hover { color:var(--text); transform:translateY(-2px); }
+
+    @media(max-width:900px) {
+      .cf-grid,.fmt-grid,.arch-row { grid-template-columns:1fr; }
+      .a-arrow { transform:rotate(90deg); }
+      .arch-box { padding:24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="gnav">
+  <div class="gnav-in">
+    <a href="index.html" class="g-logo">📄 <em>データ化</em>エージェント</a>
+    <div class="g-links">
+      <a href="index.html">ホーム</a>
+      <a href="features.html" class="cur">機能詳細</a>
+      <a href="company.html">会社情報</a>
+    </div>
+    <a href="company.html#contact" class="g-btn">お問い合わせ</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section id="top" class="page-hero">
+  <div class="ph-glow"></div>
+  <div class="ph-grid"></div>
+  <div class="wrap ph-in">
+    <div class="ph-tag">機能詳細ページ</div>
+    <h1 class="ph-title">データ化エージェントの<br><span class="g-text">すべての機能</span></h1>
+    <p class="ph-sub">AI が実現するバックオフィス自動化の詳細機能・対応フォーマット・技術構成・活用例をご紹介します。</p>
+  </div>
+</section>
+
+<!-- CORE FEATURES -->
+<section class="sec" id="features">
+  <div class="wrap">
+    <div class="eyebrow">Core Features</div>
+    <h2 class="sec-title">6 つのコア機能</h2>
+    <p class="sec-lead">受け取りからデータ活用まで、バックオフィスの自動化に必要な機能をすべて備えています。</p>
+    <div class="cf-grid">
+      <div class="cf-card"><span class="cf-ph">PHASE 1</span><div class="fi fi-i">📨</div><h3>自動受信トリガー</h3><p>メール・Slack などのチャットツールからのファイル受信を自動検知。担当者が何もしなくても AI が動き始めます。メールフィルタリングでファイル種別を事前判定する機能も搭載しています。</p></div>
+      <div class="cf-card"><span class="cf-ph">PHASE 1</span><div class="fi fi-c">🔍</div><h3>ファイル種別の自動判定</h3><p>PDF・Excel・CSV・Word・画像などを拡張子だけでなくファイル内容も解析して正確に種別判定。フォーマットに応じた最適な読み取りパイプラインへ自動で振り分けます。</p></div>
+      <div class="cf-card"><span class="cf-ph">PHASE 2</span><div class="fi fi-v">🧠</div><h3>AI による内容読み取り</h3><p>Claude（Anthropic 社の最新 AI）が帳票・表・文章を意味単位で理解し、構造化データへ変換。スキャン PDF や乱れたレイアウトにも対応し、高精度な抽出を実現します。</p></div>
+      <div class="cf-card"><span class="cf-ph">PHASE 2</span><div class="fi fi-g">✅</div><h3>ヒューマンレビュー UI</h3><p>AI の抽出結果を信頼度スコアとともに表示。要注意項目をハイライトし、担当者は「承認」か「修正」のワンクリックで完了。確認作業の工数を最小化します。</p></div>
+      <div class="cf-card"><span class="cf-ph">PHASE 3</span><div class="fi fi-a">📊</div><h3>データ出力・システム連携</h3><p>承認されたデータを CSV・Excel・JSON で出力可能。基幹システムや会計ソフトへの API 連携にも対応。蓄積データはリアルタイムダッシュボードで可視化できます。</p></div>
+      <div class="cf-card"><span class="cf-ph">PHASE 3</span><div class="fi fi-r">📈</div><h3>AI による傾向分析</h3><p>蓄積データをもとに取引傾向・コスト推移・異常検知を自動分析。定期レポートの自動生成と、意思決定を支援するインサイトの提供が可能です。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMATS -->
+<section class="sec sec-alt" id="formats">
+  <div class="wrap">
+    <div class="eyebrow">File Formats</div>
+    <h2 class="sec-title">対応ファイル形式</h2>
+    <p class="sec-lead">取引先がどのフォーマットで送ってきても、同じフローで処理できます。</p>
+    <div class="fmt-grid">
+      <div class="fmt-card"><div class="fmt-badge fb-pdf">PDF</div><div><h4>PDF ファイル</h4><p>請求書・納品書・契約書。スキャン紙 PDF にも対応（OCR + AI）。</p></div></div>
+      <div class="fmt-card"><div class="fmt-badge fb-xls">XLS</div><div><h4>Excel ファイル</h4><p>発注書・見積書・在庫表。複数シートや結合セルにも対応。</p></div></div>
+      <div class="fmt-card"><div class="fmt-badge fb-csv">CSV</div><div><h4>CSV ファイル</h4><p>売上データ・商品リスト。文字コードを自動判定して取り込み。</p></div></div>
+      <div class="fmt-card"><div class="fmt-badge fb-doc">DOC</div><div><h4>Word ファイル</h4><p>仕様書・報告書・議事録。テキストと表を混在処理できます。</p></div></div>
+      <div class="fmt-card"><div class="fmt-badge fb-img">IMG</div><div><h4>画像ファイル</h4><p>JPG・PNG などの帳票画像。スマホ撮影の領収書にも対応。</p></div></div>
+      <div class="fmt-card"><div class="fmt-badge fb-eml">EML</div><div><h4>メール本文</h4><p>添付なしでも本文に含まれる数値・日付・取引先情報を抽出。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="sec" id="architecture">
+  <div class="wrap">
+    <div class="eyebrow">Architecture</div>
+    <h2 class="sec-title">技術構成</h2>
+    <p class="sec-lead">信頼性の高いクラウドサービスと最新 AI を組み合わせ、安全・高速・スケーラブルなパイプラインを構築します。</p>
+    <div class="arch-box">
+      <div class="arch-row">
+        <div class="a-node"><div class="a-icon">📧</div><div class="a-name">受信レイヤー</div><div class="a-sub">Gmail / Outlook<br>Slack / Teams</div></div>
+        <div class="a-arrow">→</div>
+        <div class="a-node"><div class="a-icon">⚙️</div><div class="a-name">オーケストレーション</div><div class="a-sub">Dify<br>ワークフロー管理</div></div>
+        <div class="a-arrow">→</div>
+        <div class="a-node"><div class="a-icon">🧠</div><div class="a-name">AI エンジン</div><div class="a-sub">Claude（Anthropic）<br>高精度読み取り</div></div>
+      </div>
+      <div class="arch-row">
+        <div class="a-node"><div class="a-icon">✅</div><div class="a-name">レビュー UI</div><div class="a-sub">確認・承認・修正<br>Web ダッシュボード</div></div>
+        <div class="a-arrow">→</div>
+        <div class="a-node"><div class="a-icon">📊</div><div class="a-name">データストア</div><div class="a-sub">構造化 DB<br>CSV / Excel 出力</div></div>
+        <div class="a-arrow">→</div>
+        <div class="a-node"><div class="a-icon">🔗</div><div class="a-name">外部連携</div><div class="a-sub">基幹システム<br>会計ソフト API</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="sec sec-alt" id="usecases">
+  <div class="wrap">
+    <div class="eyebrow">Use Cases</div>
+    <h2 class="sec-title">活用シーン</h2>
+    <p class="sec-lead">様々な業務部門・シーンで活用できます。</p>
+    <div class="uc-list">
+      <div class="uc-item"><div class="uc-num">1</div><div><h4>経理部門 — 請求書の自動データ化</h4><p>取引先から届く多様なフォーマットの請求書を AI が自動で読み取り、金額・日付・振込先などを構造化。経理担当者は確認だけで会計システムへの登録が完了します。1 件あたり 15 分 → 約 1 分に短縮。</p></div></div>
+      <div class="uc-item"><div class="uc-num">2</div><div><h4>購買部門 — 発注書・見積書の一元管理</h4><p>サプライヤーから届く Excel・PDF の発注書・見積書をすべて同じ構造で取り込み、比較・分析を自動化。複数サプライヤーの価格推移をリアルタイムで可視化できます。</p></div></div>
+      <div class="uc-item"><div class="uc-num">3</div><div><h4>営業事務 — 受注データの自動登録</h4><p>顧客から届いた注文書・受注確認書を AI が解析し、品番・数量・単価・納期をシステムへ自動登録。転記ミスをゼロに近づけ、処理スピードとトレーサビリティを両立します。</p></div></div>
+      <div class="uc-item"><div class="uc-num">4</div><div><h4>総務部門 — 紙書類のデジタル化</h4><p>スキャンした紙の申請書・契約書をアップロードするだけで、AI が内容を読み取りデジタルデータへ変換。紙の保管コスト削減とペーパーレス化を一気に推進します。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="eyebrow">FAQ</div>
+    <h2 class="sec-title">よくある質問</h2>
+    <p class="sec-lead">導入前によくいただく質問をまとめました。</p>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-q"><span class="faq-ql">Q</span>既存のシステムへの影響はありますか？</div><div class="faq-a">既存システムへの直接的な変更は不要です。メールや Slack などの受信トリガーを起点に動作するため、現在の送受信フローを変えずに導入できます。データ出力は CSV・API 形式で連携可能です。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-ql">Q</span>読み取り精度はどのくらいですか？</div><div class="faq-a">整形済みの PDF・Excel では 95% 以上の精度を目標としています。スキャン紙や手書きを含む場合は精度が下がる可能性がありますが、信頼度スコアで低精度項目をハイライト表示し、人によるチェックをサポートします。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-ql">Q</span>セキュリティ面は安全ですか？</div><div class="faq-a">ファイルの処理はクラウド上の暗号化環境で行われます。Claude API は Anthropic のセキュリティポリシーに準拠し、入力データは AI のトレーニングに使用されません。オンプレミス展開も要件に応じて検討可能です。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-ql">Q</span>どのくらいの期間で導入できますか？</div><div class="faq-a">PHASE 1（受信トリガー + 基本読み取り）は 4〜6 週間を想定しています。フォーマットの種類や連携先によって変動しますが、まず最小構成で動かしながら段階的に機能を拡張するアプローチを推奨しています。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-ql">Q</span>対応できないファイル形式はありますか？</div><div class="faq-a">パスワード保護されたファイルや、高度にカスタマイズされたマクロが必要な Excel ファイルは個別対応が必要です。動画・音声ファイルは現在の対応外となります。詳細はご相談ください。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="cta-glow"></div>
+  <div class="cta-in">
+    <div class="eyebrow" style="justify-content:center">Get Started</div>
+    <h2>まずは、<span class="g-text">相談してみませんか？</span></h2>
+    <p>貴社の業務フローに合った活用方法をご提案します。</p>
+    <div class="cta-btns">
+      <a href="company.html#contact" class="btn-p">お問い合わせ・デモ依頼 →</a>
+      <a href="index.html" class="btn-g">ホームに戻る</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="ft-in">
+      <div class="ft-brand">📄 <em>データ化</em>エージェント</div>
+      <nav class="ft-links">
+        <a href="index.html">ホーム</a>
+        <a href="features.html">機能詳細</a>
+        <a href="company.html">会社情報</a>
+        <a href="company.html#contact">お問い合わせ</a>
+      </nav>
+      <div class="ft-copy">© 2025 KATOLEC Corporation.</div>
+    </div>
+  </div>
+</footer>
+<a href="#top" class="to-top">↑ Top</a>
+</body>
+</html>

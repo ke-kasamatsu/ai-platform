@@ -80,12 +80,20 @@ function AppCard({ app }: { app: WorkflowApp }) {
       <p className="text-[13px] font-semibold text-gray-800 leading-snug mb-1 pr-8">{app.name}</p>
       <p className="text-[12px] text-gray-400 leading-snug mb-3">{app.description}</p>
 
-      <button
-        className="flex items-center gap-1 text-[12px] font-medium text-gray-500 hover:text-gray-800 transition-colors"
-      >
-        <Play size={11} />
-        実行
-      </button>
+      {app.href ? (
+        <a
+          href={app.href}
+          className="flex items-center gap-1 text-[12px] font-medium text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <Play size={11} />
+          実行
+        </a>
+      ) : (
+        <button className="flex items-center gap-1 text-[12px] font-medium text-gray-500 hover:text-gray-800 transition-colors">
+          <Play size={11} />
+          実行
+        </button>
+      )}
     </div>
   );
 }

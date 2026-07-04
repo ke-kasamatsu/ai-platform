@@ -29,6 +29,7 @@ export type WorkflowApp = {
   icon: string;
   color: string;
   category: "popular" | "business";
+  href?: string;
 };
 
 export const newsItems: NewsItem[] = [
@@ -145,6 +146,7 @@ export const workflowApps: WorkflowApp[] = [
     icon: "FileSpreadsheet",
     color: "#5b4fcf",
     category: "business",
+    href: "/ai-platform/file-agent/",
   },
   {
     id: 6,
