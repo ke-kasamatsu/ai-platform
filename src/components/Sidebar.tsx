@@ -11,6 +11,7 @@ import {
   BarChart3,
   Users,
   LogOut,
+  ChevronDown,
 } from "lucide-react";
 
 type NavItem = {
@@ -29,28 +30,28 @@ const sections: NavSection[] = [
   {
     title: "メニュー",
     items: [
-      { icon: <Home size={16} />, label: "ホーム", active: true },
-      { icon: <Zap size={16} />, label: "AIワークフロー" },
-      { icon: <MessageSquare size={16} />, label: "チャット" },
-      { icon: <History size={16} />, label: "実行履歴" },
-      { icon: <Star size={16} />, label: "お気に入り" },
+      { icon: <Home size={14} />, label: "ホーム", active: true },
+      { icon: <Zap size={14} />, label: "AIワークフロー" },
+      { icon: <MessageSquare size={14} />, label: "チャット" },
+      { icon: <History size={14} />, label: "実行履歴" },
+      { icon: <Star size={14} />, label: "お気に入り" },
     ],
   },
   {
     title: "機能",
     items: [
-      { icon: <FileText size={16} />, label: "文書処理" },
-      { icon: <Files size={16} />, label: "複数資料分析" },
-      { icon: <Globe size={16} />, label: "Web調査" },
+      { icon: <FileText size={14} />, label: "文書処理" },
+      { icon: <Files size={14} />, label: "複数資料分析" },
+      { icon: <Globe size={14} />, label: "Web調査" },
     ],
   },
   {
     title: "管理",
     adminOnly: true,
     items: [
-      { icon: <Shield size={16} />, label: "監査ログ" },
-      { icon: <BarChart3 size={16} />, label: "コスト管理" },
-      { icon: <Users size={16} />, label: "権限管理" },
+      { icon: <Shield size={14} />, label: "監査ログ" },
+      { icon: <BarChart3 size={14} />, label: "コスト管理" },
+      { icon: <Users size={14} />, label: "権限管理" },
     ],
   },
 ];
@@ -58,81 +59,70 @@ const sections: NavSection[] = [
 export function Sidebar() {
   return (
     <aside
-      className="flex flex-col h-screen sticky top-0 overflow-y-auto"
-      style={{ width: 240, backgroundColor: "#1a1a2e", flexShrink: 0 }}
+      className="flex flex-col h-screen sticky top-0 overflow-y-auto shrink-0"
+      style={{ width: 240, backgroundColor: "#191919" }}
     >
-      {/* Logo */}
-      <div className="px-5 py-5 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <div
-            className="w-7 h-7 rounded-md flex items-center justify-center text-white text-xs font-bold"
-            style={{ backgroundColor: "#5b4fcf" }}
-          >
-            AI
-          </div>
-          <span className="text-white font-semibold text-sm">社内AIポータル</span>
+      {/* Workspace header */}
+      <button className="flex items-center gap-2 px-3 py-3 hover:bg-white/5 transition-colors text-left w-full">
+        <div
+          className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+          style={{ backgroundColor: "#5b4fcf" }}
+        >
+          AI
         </div>
-      </div>
+        <span className="text-white/85 text-[13px] font-medium flex-1 truncate">社内AIポータル</span>
+        <ChevronDown size={13} className="text-white/30" />
+      </button>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-5">
+      <nav className="flex-1 px-1 pt-1 pb-2">
         {sections.map((section) => (
-          <div key={section.title}>
-            <div className="flex items-center gap-1 px-2 mb-1">
-              <p className="text-xs font-medium text-white/40 uppercase tracking-wider">
+          <div key={section.title} className="mb-4">
+            <div className="flex items-center gap-1.5 px-2 py-1 mb-0.5">
+              <span className="text-[11px] font-medium text-white/30 uppercase tracking-wider">
                 {section.title}
-              </p>
+              </span>
               {section.adminOnly && (
-                <span className="text-xs px-1 rounded text-white/30 border border-white/20">
+                <span className="text-[10px] px-1 rounded text-white/20 border border-white/15">
                   Admin
                 </span>
               )}
             </div>
-            <ul className="space-y-0.5">
-              {section.items.map((item) => (
-                <li key={item.label}>
-                  <button
-                    className={`w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors text-left ${
-                      item.active
-                        ? "text-white"
-                        : "text-white/60 hover:text-white/90 hover:bg-white/5"
-                    }`}
-                    style={
-                      item.active
-                        ? { backgroundColor: "rgba(91,79,207,0.35)" }
-                        : undefined
-                    }
-                  >
-                    <span
-                      className={item.active ? "text-white" : "text-white/50"}
-                    >
-                      {item.icon}
-                    </span>
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {section.items.map((item) => (
+              <button
+                key={item.label}
+                className={`w-full flex items-center gap-2 px-2 py-[5px] rounded-md text-[13px] transition-colors text-left mb-0.5 ${
+                  item.active
+                    ? "bg-white/10 text-white/90"
+                    : "text-white/45 hover:text-white/75 hover:bg-white/5"
+                }`}
+              >
+                <span className={item.active ? "text-white/65" : "text-white/30"}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </button>
+            ))}
           </div>
         ))}
       </nav>
 
       {/* User area */}
-      <div className="px-3 py-4 border-t border-white/10">
-        <div className="flex items-center gap-3 px-2 py-2">
+      <div className="px-1 py-2 border-t border-white/[0.07]">
+        <div className="flex items-center gap-2 px-2 py-[5px] rounded-md hover:bg-white/5 transition-colors cursor-pointer">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-semibold shrink-0"
             style={{ backgroundColor: "#5b4fcf" }}
           >
             笠
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-medium truncate">笠松 健恵</p>
-            <p className="text-white/40 text-xs truncate">情報システム部</p>
+            <p className="text-white/75 text-[13px] leading-tight truncate">笠松 健恵</p>
+            <p className="text-white/30 text-[11px] truncate">情報システム部</p>
           </div>
         </div>
-        <button className="mt-2 w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-white/50 hover:text-white/80 hover:bg-white/5 text-xs transition-colors">
-          <LogOut size={14} />
+        <button className="w-full flex items-center gap-2 px-2 py-[5px] rounded-md text-white/30 hover:text-white/55 hover:bg-white/5 text-[13px] transition-colors mt-0.5">
+          <LogOut size={13} />
           ログアウト
         </button>
       </div>
