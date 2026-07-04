@@ -14,6 +14,7 @@ import {
   Play,
 } from "lucide-react";
 import { workflowApps, type WorkflowApp } from "@/data/mockData";
+import type { Page } from "@/App";
 
 const iconMap: Record<string, React.ReactNode> = {
   MessageSquare: <MessageSquare size={15} />,
@@ -37,7 +38,7 @@ const confidentialityStyle: Record<Confidentiality, string> = {
   機密: "text-red-400",
 };
 
-function AppCard({ app }: { app: WorkflowApp }) {
+function AppCard({ app, onNavigate }: { app: WorkflowApp; onNavigate: (p: Page) => void }) {
   const [level, setLevel] = useState<Confidentiality>("一般");
   const [open, setOpen] = useState(false);
 
@@ -80,25 +81,18 @@ function AppCard({ app }: { app: WorkflowApp }) {
       <p className="text-[13px] font-semibold text-gray-800 leading-snug mb-1 pr-8">{app.name}</p>
       <p className="text-[12px] text-gray-400 leading-snug mb-3">{app.description}</p>
 
-      {app.href ? (
-        <a
-          href={app.href}
-          className="flex items-center gap-1 text-[12px] font-medium text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          <Play size={11} />
-          実行
-        </a>
-      ) : (
-        <button className="flex items-center gap-1 text-[12px] font-medium text-gray-500 hover:text-gray-800 transition-colors">
-          <Play size={11} />
-          実行
-        </button>
-      )}
+      <button
+        onClick={() => app.href && onNavigate("file-agent")}
+        className="flex items-center gap-1 text-[12px] font-medium text-gray-500 hover:text-gray-800 transition-colors"
+      >
+        <Play size={11} />
+        実行
+      </button>
     </div>
   );
 }
 
-export function WorkflowWidget() {
+export function WorkflowWidget({ onNavigate }: { onNavigate: (p: Page) => void }) {
   const [tab, setTab] = useState<"popular" | "business">("popular");
   const filtered = workflowApps.filter((a) => a.category === tab);
 
@@ -126,7 +120,7 @@ export function WorkflowWidget() {
       </div>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {filtered.map((app) => (
-          <AppCard key={app.id} app={app} />
+          <AppCard key={app.id} app={app} onNavigate={onNavigate} />
         ))}
       </div>
     </section>

@@ -13,12 +13,12 @@ import {
   LogOut,
   ChevronDown,
 } from "lucide-react";
+import type { Page } from "@/App";
 
 type NavItem = {
   icon: React.ReactNode;
   label: string;
-  active?: boolean;
-  href?: string;
+  page?: Page;
 };
 
 type NavSection = {
@@ -27,44 +27,56 @@ type NavSection = {
   adminOnly?: boolean;
 };
 
-const sections: NavSection[] = [
-  {
-    title: "メニュー",
-    items: [
-      { icon: <Home size={14} />, label: "ホーム", active: true },
-      { icon: <Zap size={14} />, label: "AIワークフロー" },
-      { icon: <MessageSquare size={14} />, label: "チャット" },
-      { icon: <History size={14} />, label: "実行履歴" },
-      { icon: <Star size={14} />, label: "お気に入り" },
-    ],
-  },
-  {
-    title: "機能",
-    items: [
-      { icon: <FileText size={14} />, label: "文書処理", href: "/ai-platform/file-agent/" },
-      { icon: <Files size={14} />, label: "複数資料分析", href: "/ai-platform/file-agent/features.html" },
-      { icon: <Globe size={14} />, label: "Web調査" },
-    ],
-  },
-  {
-    title: "管理",
-    adminOnly: true,
-    items: [
-      { icon: <Shield size={14} />, label: "監査ログ" },
-      { icon: <BarChart3 size={14} />, label: "コスト管理" },
-      { icon: <Users size={14} />, label: "権限管理" },
-    ],
-  },
-];
+function getSections(): NavSection[] {
+  return [
+    {
+      title: "メニュー",
+      items: [
+        { icon: <Home size={14} />, label: "ホーム", page: "home" },
+        { icon: <Zap size={14} />, label: "AIワークフロー" },
+        { icon: <MessageSquare size={14} />, label: "チャット" },
+        { icon: <History size={14} />, label: "実行履歴" },
+        { icon: <Star size={14} />, label: "お気に入り" },
+      ],
+    },
+    {
+      title: "機能",
+      items: [
+        { icon: <FileText size={14} />, label: "文書処理", page: "file-agent" },
+        { icon: <Files size={14} />, label: "複数資料分析", page: "file-agent" },
+        { icon: <Globe size={14} />, label: "Web調査" },
+      ],
+    },
+    {
+      title: "管理",
+      adminOnly: true,
+      items: [
+        { icon: <Shield size={14} />, label: "監査ログ" },
+        { icon: <BarChart3 size={14} />, label: "コスト管理" },
+        { icon: <Users size={14} />, label: "権限管理" },
+      ],
+    },
+  ];
+}
 
-export function Sidebar() {
+type Props = {
+  currentPage: Page;
+  onNavigate: (page: Page) => void;
+};
+
+export function Sidebar({ currentPage, onNavigate }: Props) {
+  const sections = getSections();
+
   return (
     <aside
       className="flex flex-col h-screen sticky top-0 overflow-y-auto shrink-0"
       style={{ width: 240, backgroundColor: "#191919" }}
     >
       {/* Workspace header */}
-      <button className="flex items-center gap-2 px-3 py-3 hover:bg-white/5 transition-colors text-left w-full">
+      <button
+        onClick={() => onNavigate("home")}
+        className="flex items-center gap-2 px-3 py-3 hover:bg-white/5 transition-colors text-left w-full"
+      >
         <div
           className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold shrink-0"
           style={{ backgroundColor: "#5b4fcf" }}
@@ -90,23 +102,22 @@ export function Sidebar() {
               )}
             </div>
             {section.items.map((item) => {
-              const cls = `w-full flex items-center gap-2 px-2 py-[5px] rounded-md text-[13px] transition-colors text-left mb-0.5 ${
-                item.active
-                  ? "bg-white/10 text-white/90"
-                  : "text-white/45 hover:text-white/75 hover:bg-white/5"
-              }`;
-              const inner = (
-                <>
-                  <span className={item.active ? "text-white/65" : "text-white/30"}>
+              const isActive = item.page === currentPage;
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => item.page && onNavigate(item.page)}
+                  className={`w-full flex items-center gap-2 px-2 py-[5px] rounded-md text-[13px] transition-colors text-left mb-0.5 ${
+                    isActive
+                      ? "bg-white/10 text-white/90"
+                      : "text-white/45 hover:text-white/75 hover:bg-white/5"
+                  } ${!item.page ? "cursor-default" : "cursor-pointer"}`}
+                >
+                  <span className={isActive ? "text-white/65" : "text-white/30"}>
                     {item.icon}
                   </span>
                   {item.label}
-                </>
-              );
-              return item.href ? (
-                <a key={item.label} href={item.href} className={cls}>{inner}</a>
-              ) : (
-                <button key={item.label} className={cls}>{inner}</button>
+                </button>
               );
             })}
           </div>
